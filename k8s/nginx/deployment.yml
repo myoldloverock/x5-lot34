@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: $$CI_REGISTRY_URL:frontend-latest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+      imagePullSecrets:
+        - name: lot14
+
+

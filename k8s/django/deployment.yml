@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deploy
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django
+        image: $CI_REGISTRY_URL:backend-latest
+        command: ["gunicorn","--bind","0.0.0.0:8010","project.wsgi"]
+        ports:
+        - containerPort: 8010
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: app-variables
+              key: POSTGRES_DB
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-variables
+              key: DB_HOST
+      imagePullSecrets:
+        - name: lot34
+
+
